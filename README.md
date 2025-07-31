@@ -1,135 +1,214 @@
 <div align="center">
   <img src="https://cdn.discordapp.com/attachments/910547379617402960/942871547268436088/Discord-Modals.png" alt="Discord Modals" />
   <p align="center">
-  <a href="https://www.npmjs.com/package/discord-modals">
-    <img src="https://img.shields.io/npm/dt/discord-modals?style=for-the-badge" alt="npm" />
+  <a href="https://www.npmjs.com/package/discord-modals-v2.0">
+    <img src="https://img.shields.io/npm/dt/discord-modals-v2.0?style=for-the-badge" alt="npm" />
   </a>
 </p>
-
 </div>
 
-> **A package that helps you create and interact with Discord Modals in discord.js v14+.**
+> **A package that helps you create Discord Modals with simulated Select Menus, Checkboxes, and Switches in discord.js v14+.**
 
 # 🔎 Installation
 
 ```sh
-npm install discord-modals
-yarn add discord-modals
+npm install discord-modals-v2.0
+yarn add discord-modals-v2.0
 ```
 
-# 🔮 What is this package for?
+# 🚀 What Makes This Special?
 
-This package provides a simple and intuitive way to build and show Discord Modals. It's designed to work seamlessly with discord.js v14 and above.
+This package extends Discord modals beyond their limitations by simulating **Select Menus**, **Checkboxes**, and **Switches** using clever TextInput workarounds. Since Discord only supports TextInput components in modals, we provide an intuitive way for users to interact with these simulated components.
 
-# ✨ Usage
+## ✨ Enhanced Components
 
-Creating and showing a modal is straightforward. You build a modal using the provided component classes, and then show it in an interaction.
+### 🎯 Simulated Select Menu
+Users type numbers to select options (e.g., "1" or "1,3" for multiple selections)
 
-## 📜 Examples
+### ☑️ Simulated Checkbox  
+Users type "yes/no" or similar variations
 
-### Basic Modal
+### 🔘 Simulated Switch
+Users type "on/off" or similar variations
 
-Here's how to create a simple modal with a text input and show it when a slash command is used.
+# 📋 Quick Examples
+
+## Enhanced Select Menu
 
 ```js
-const { Modal, TextInputComponent, showModal } = require('discord-modals');
-const { Client, Intents } = require('discord.js');
+const { Modal, SelectMenuComponent, showModal } = require('discord-modals-v2.0');
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const modal = new Modal()
+  .setCustomId('demo-modal')
+  .setTitle('Choose Your Preferences')
+  .addComponents(
+    new SelectMenuComponent()
+      .setCustomId('color-select')
+      .setPlaceholder('Choose your favorite colors')
+      .setMinValues(1)
+      .setMaxValues(2)
+      .addOptions(
+        { label: 'Red', value: 'red', emoji: '❤️' },
+        { label: 'Green', value: 'green', emoji: '💚' },
+        { label: 'Blue', value: 'blue', emoji: '💙' }
+      )
+  );
 
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isCommand() || interaction.commandName !== 'ping') return;
+await showModal(interaction, modal);
 
-  const modal = new Modal()
-    .setCustomId('ping-modal')
-    .setTitle('My First Modal')
-    .addComponents(
-      new TextInputComponent()
-        .setCustomId('name-input')
-        .setLabel('What is your name?')
-        .setStyle('Paragraph')
-        .setPlaceholder('John Doe')
-        .setRequired(true)
-    );
+// Handle submission
+const submitted = await interaction.awaitModalSubmit({ time: 60000 });
+const colorInput = submitted.fields.getTextInputValue('color-select');
 
-  await showModal(interaction, modal);
-});
-
-client.login('YOUR_BOT_TOKEN');
+// Parse the selection (user typed "1,3")
+const selectedColors = selectComponent.validateAndParseInput(colorInput);
+// Returns: ['red', 'blue']
 ```
 
-### Handling Submissions
-
-You can await the modal submission and get the values from the fields.
-
-```js
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isCommand() || interaction.commandName !== 'ping') return;
-
-  const modal = new Modal() // ... (same as above)
-
-  await showModal(interaction, modal);
-
-  const submitted = await interaction.awaitModalSubmit({
-    time: 60000,
-    filter: i => i.customId === 'ping-modal' && i.user.id === interaction.user.id,
-  }).catch(console.error);
-
-  if (submitted) {
-    const name = submitted.fields.getTextInputValue('name-input');
-    await submitted.reply(`Hello, ${name}!`);
-  }
-});
+**What the user sees:**
+```
+Choose your favorite colors
+Select 1-2 options (type "1,3"):
+1. ❤️ Red | 2. 💚 Green | 3. 💙 Blue
 ```
 
-### Checkboxes and Switches
-
-This library also provides convenient `CheckboxComponent` and `SwitchComponent` classes.
+## Enhanced Checkbox & Switch
 
 ```js
-const { Modal, CheckboxComponent, SwitchComponent, showModal } = require('discord-modals');
-
-// ...
+const { CheckboxComponent, SwitchComponent } = require('discord-modals-v2.0');
 
 const modal = new Modal()
   .setCustomId('settings-modal')
-  .setTitle('Your Settings')
+  .setTitle('User Settings')
   .addComponents(
     new CheckboxComponent()
-      .setCustomId('agree-checkbox')
-      .setLabel('Do you agree to the terms?'),
+      .setCustomId('agree-terms')
+      .setLabel('Do you agree to the terms?')
+      .setDefaultValue(false),
     new SwitchComponent()
-      .setCustomId('notifications-switch')
+      .setCustomId('notifications')
       .setLabel('Enable notifications?')
       .setDefaultValue(true)
   );
 
-// ... (show the modal and handle submission as above)
+// Parse submissions
+const agreedToTerms = checkboxComponent.validateAndParseInput(termsInput); // true/false
+const notificationsEnabled = switchComponent.validateAndParseInput(notifInput); // true/false
+```
 
-// To get the values:
-if (submitted) {
-  const agreed = submitted.fields.getSelectMenuValues('agree-checkbox')[0] === 'true';
-  const notifications = submitted.fields.getSelectMenuValues('notifications-switch')[0] === 'true';
+# 🎨 User Experience
 
-  await submitted.reply(`Agreed: ${agreed}, Notifications: ${notifications}`);
+The enhanced components provide clear, intuitive interfaces:
+
+- **Select Menu**: `1. ❤️ Red | 2. 💚 Green | 3. 💙 Blue` → User types `1,3`
+- **Checkbox**: `Type "yes" or "no":` → User types `yes`
+- **Switch**: `Type "on" or "off":` → User types `off`
+
+# 🛠️ Input Validation
+
+All components include smart validation with helpful error messages:
+
+```js
+try {
+  const values = selectComponent.validateAndParseInput('1,5'); // Invalid option 5
+} catch (error) {
+  console.log(error.message); // "Invalid option: 5. Choose 1-3"
 }
+```
+
+## Accepted Input Variations
+
+### Checkbox
+- **True**: `yes`, `y`, `true`, `1`, `on`, `checked`
+- **False**: `no`, `n`, `false`, `0`, `off`, `unchecked`
+
+### Switch
+- **On**: `on`, `enable`, `enabled`, `true`, `1`, `yes`, `active`
+- **Off**: `off`, `disable`, `disabled`, `false`, `0`, `no`, `inactive`
+
+### Select Menu
+- **Single**: `1`, `2`, `3`
+- **Multiple**: `1,3`, `2,1,4`, `1, 2, 3`
+
+# 🔥 Complete Example
+
+```js
+const { Client, GatewayIntentBits } = require('discord.js');
+const { Modal, TextInputComponent, SelectMenuComponent, CheckboxComponent, SwitchComponent, showModal } = require('discord-modals-v2.0');
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isCommand() || interaction.commandName !== 'settings') return;
+
+  const modal = new Modal()
+    .setCustomId('user-settings')
+    .setTitle('User Preferences')
+    .addComponents(
+      new TextInputComponent()
+        .setCustomId('username')
+        .setLabel('Username')
+        .setStyle('SHORT')
+        .setRequired(true),
+      new SelectMenuComponent()
+        .setCustomId('theme')
+        .setPlaceholder('Choose theme')
+        .addOptions(
+          { label: 'Dark', value: 'dark', emoji: '🌙' },
+          { label: 'Light', value: 'light', emoji: '☀️' },
+          { label: 'Auto', value: 'auto', emoji: '🔄' }
+        ),
+      new CheckboxComponent()
+        .setCustomId('analytics')
+        .setLabel('Allow analytics?'),
+      new SwitchComponent()
+        .setCustomId('notifications')
+        .setLabel('Push notifications')
+        .setDefaultValue(true)
+    );
+
+  await showModal(interaction, modal);
+
+  const submitted = await interaction.awaitModalSubmit({ time: 60000 });
+  
+  // Parse all inputs
+  const username = submitted.fields.getTextInputValue('username');
+  const themeInput = submitted.fields.getTextInputValue('theme');
+  const analyticsInput = submitted.fields.getTextInputValue('analytics');
+  const notificationsInput = submitted.fields.getTextInputValue('notifications');
+
+  // Validate simulated components
+  const theme = themeComponent.validateAndParseInput(themeInput)[0];
+  const analytics = analyticsComponent.validateAndParseInput(analyticsInput);
+  const notifications = notificationsComponent.validateAndParseInput(notificationsInput);
+
+  await submitted.reply(`Settings saved! Theme: ${theme}, Analytics: ${analytics}, Notifications: ${notifications}`);
+});
 ```
 
 # ❓ FAQ
 
-**DiscordAPIError: Interaction has already been acknowledged.**
+**How do users know what to type?**
+Each simulated component displays clear instructions and examples in the modal label and placeholder text.
 
-The `showModal()` function is a response to an interaction. You cannot reply to an interaction more than once. If you have already used `reply()` or `deferReply()`, you cannot use `showModal()`.
+**What if users enter invalid input?**
+The validation methods provide helpful error messages explaining the correct format.
 
-**Can I add more than 5 components to a modal?**
+**Can I customize the instructions?**
+Yes! You can modify the label and placeholder text, or extend the components for custom behavior.
 
-No, a modal can only have up to 5 action rows, and each action row can only contain one text input or select menu.
+**Does this work with discord.js v13?**
+This package is designed for discord.js v14+, but the core concepts can be adapted for v13.
 
 # 🔨 Developers
 
 - 『𝑴𝒂𝒕𝒆𝒐ᵗᵉᵐ』#9999
-- Your Name Here (if you contribute!)
+- Stranger_Sparky #7328
 
 # ⛔ Issues/Bugs?
 
-> **Please report them on our GitHub Repository [here](https://github.com/Mateo-tem/discord-modals/issues) to help us improve the package.**
+> **Please report them on our GitHub Repository [here](https://github.com/StrangerSparky/discord-modals/issues) to help us improve the package.**
+
+---
+
+**✨ Transform your Discord modals with simulated components that users actually understand! 🚀**

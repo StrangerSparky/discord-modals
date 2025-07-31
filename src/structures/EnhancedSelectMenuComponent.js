@@ -1,13 +1,8 @@
 'use strict';
 
 const TextInputComponent = require('./TextInputComponent');
-const Util = require('../util/Util');
-const { RangeError } = require('./errors');
 
-/**
- * Enhanced Select Menu Component that simulates dropdown behavior using TextInput
- */
-class SelectMenuComponent extends TextInputComponent {
+class EnhancedSelectMenuComponent extends TextInputComponent {
   constructor(data = {}) {
     super({ ...data, style: 'SHORT' });
     this.options = [];
@@ -31,7 +26,7 @@ class SelectMenuComponent extends TextInputComponent {
   }
 
   setPlaceholder(placeholder) {
-    this.selectPlaceholder = Util.verifyString(placeholder, RangeError, 'SELECT_MENU_PLACEHOLDER');
+    this.selectPlaceholder = placeholder;
     this._updateInputProperties();
     return this;
   }
@@ -59,14 +54,14 @@ class SelectMenuComponent extends TextInputComponent {
       .join(' | ');
 
     const instructionText = this.allowMultiple
-      ? `Select ${this.minValues}-${this.maxValues} options (type "1,3"):`
-      : 'Select option (type number):';
+      ? `Select ${this.minValues}-${this.maxValues} options (e.g., "1,3"):`
+      : 'Select an option (type number):';
 
     this.setLabel(`${this.selectPlaceholder}\n${instructionText}`);
     
     const shortOptions = this.options.length <= 3 
       ? optionsList 
-      : `1-${this.options.length}`;
+      : `Options 1-${this.options.length} available`;
     
     super.setPlaceholder(shortOptions);
     this.setRequired(this.minValues > 0);
@@ -81,21 +76,21 @@ class SelectMenuComponent extends TextInputComponent {
     const inputNumbers = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
     
     if (inputNumbers.length === 0) {
-      throw new Error('Enter valid numbers (e.g., "1" or "1,3")');
+      throw new Error('Please enter valid numbers (e.g., "1" or "1,3")');
     }
 
     if (inputNumbers.length < this.minValues) {
-      throw new Error(`Select at least ${this.minValues} option(s)`);
+      throw new Error(`Please select at least ${this.minValues} option(s)`);
     }
 
     if (inputNumbers.length > this.maxValues) {
-      throw new Error(`Select at most ${this.maxValues} option(s)`);
+      throw new Error(`Please select at most ${this.maxValues} option(s)`);
     }
 
     const selectedValues = [];
     for (const num of inputNumbers) {
       if (num < 1 || num > this.options.length) {
-        throw new Error(`Invalid: ${num}. Choose 1-${this.options.length}`);
+        throw new Error(`Invalid option: ${num}. Choose 1-${this.options.length}`);
       }
       selectedValues.push(this.options[num - 1].value);
     }
@@ -103,14 +98,26 @@ class SelectMenuComponent extends TextInputComponent {
     return [...new Set(selectedValues)];
   }
 
-  static normalizeOption(option) {
-    let { label, value, description, emoji } = option;
-    label = Util.verifyString(label, RangeError, 'SELECT_OPTION_LABEL');
-    value = Util.verifyString(value, RangeError, 'SELECT_OPTION_VALUE');
-    emoji = emoji ? Util.resolvePartialEmoji(emoji) : null;
-    description = description ? Util.verifyString(description, RangeError, 'SELECT_OPTION_DESCRIPTION', true) : null;
+  getSelectedLabels(input) {
+    try {
+      const values = this.validateAndParseInput(input);
+      return values.map(value => {
+        const option = this.options.find(opt => opt.value === value);
+        return option ? `${option.emoji ? option.emoji + ' ' : ''}${option.label}` : value;
+      });
+    } catch (error) {
+      return [];
+    }
+  }
 
-    return { label, value, description, emoji, default: option.default ?? false };
+  static normalizeOption(option) {
+    return {
+      label: String(option.label),
+      value: String(option.value),
+      description: option.description ? String(option.description) : null,
+      emoji: option.emoji || null,
+      default: option.default ?? false,
+    };
   }
 
   static normalizeOptions(...options) {
@@ -118,4 +125,4 @@ class SelectMenuComponent extends TextInputComponent {
   }
 }
 
-module.exports = SelectMenuComponent;
+module.exports = EnhancedSelectMenuComponent;

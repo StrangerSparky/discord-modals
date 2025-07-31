@@ -1,6 +1,7 @@
+require("dotenv").config();
 const { Client, GatewayIntentBits, Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
-const { Modal, TextInputComponent, SelectMenuComponent, CheckboxComponent, SwitchComponent, showModal } = require('discord-modals');
+const { Modal, TextInputComponent, showModal } = require('discord-modals-v2.0');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
@@ -23,22 +24,24 @@ client.on('interactionCreate', async interaction => {
       new TextInputComponent()
         .setCustomId('feedback-input')
         .setLabel('Your Feedback')
-        .setStyle('Paragraph')
+        .setStyle('PARAGRAPH')
         .setPlaceholder('Type your feedback here...'),
-      new SelectMenuComponent()
-        .setCustomId('color-select')
-        .setPlaceholder('Choose your favorite color')
-        .addOptions(
-          { label: 'Red', value: 'red', emoji: '❤️' },
-          { label: 'Green', value: 'green', emoji: '💚' },
-          { label: 'Blue', value: 'blue', emoji: '💙' }
-        ),
-      new CheckboxComponent()
-        .setCustomId('terms-checkbox')
-        .setLabel('Do you agree to the terms?'),
-      new SwitchComponent()
-        .setCustomId('notifications-switch')
-        .setLabel('Enable notifications?')
+      new TextInputComponent()
+        .setCustomId('name-input')
+        .setLabel('Your Name')
+        .setStyle('SHORT')
+        .setPlaceholder('Enter your name')
+        .setRequired(true),
+      new TextInputComponent()
+        .setCustomId('email-input')
+        .setLabel('Your Email')
+        .setStyle('SHORT')
+        .setPlaceholder('Enter your email'),
+      new TextInputComponent()
+        .setCustomId('age-input')
+        .setLabel('Your Age')
+        .setStyle('SHORT')
+        .setPlaceholder('Enter your age')
     );
 
   await showModal(interaction, modal);
@@ -50,15 +53,16 @@ client.on('interactionCreate', async interaction => {
 
   if (submitted) {
     const feedback = submitted.fields.getTextInputValue('feedback-input');
-    const color = submitted.fields.getSelectMenuValues('color-select')[0];
-    const terms = submitted.fields.getSelectMenuValues('terms-checkbox')[0] === 'true';
-    const notifications = submitted.fields.getSelectMenuValues('notifications-switch')[0] === 'true';
+    const name = submitted.fields.getTextInputValue('name-input');
+    const email = submitted.fields.getTextInputValue('email-input');
+    const age = submitted.fields.getTextInputValue('age-input');
 
     await submitted.reply(
-      `**Feedback:**\n${feedback}\n\n` +
-      `**Favorite Color:** ${color}\n` +
-      `**Agreed to Terms:** ${terms}\n` +
-      `**Notifications:** ${notifications}`
+      `**Thank you for your submission!**\n\n` +
+      `**Name:** ${name}\n` +
+      `**Email:** ${email}\n` +
+      `**Age:** ${age}\n` +
+      `**Feedback:**\n${feedback}`
     );
   }
 });

@@ -1,71 +1,63 @@
 'use strict';
 
-const SelectMenuComponent = require('./SelectMenuComponent');
+const TextInputComponent = require('./TextInputComponent');
 
 /**
- * Represents a Switch Component of a Modal.
- * @extends {SelectMenuComponent}
+ * Enhanced Switch Component that simulates switch behavior using TextInput
  */
-class SwitchComponent extends SelectMenuComponent {
-  /**
-   * Represents a Switch Component of a Modal.
-   * @param {Object} data
-   * @example
-   * new SwitchComponent()
-   *  .setCustomId('switch-customid')
-   *  .setLabel('Enable notifications?')
-   *  .setDefaultValue(true)
-   */
+class SwitchComponent extends TextInputComponent {
   constructor(data = {}) {
-    const options = [
-      {
-        label: 'On',
-        value: 'true',
-        emoji: '🟢',
-      },
-      {
-        label: 'Off',
-        value: 'false',
-        emoji: '🔴',
-      },
-    ];
-
-    if (data.defaultValue) {
-      const defaultOption = options.find(o => o.value === 'true');
-      if (defaultOption) {
-        defaultOption.default = true;
-      }
-    }
-
-    super({
-      ...data,
-      placeholder: data.label ?? 'Select an option',
-      options,
-    });
+    super({ ...data, style: 'SHORT' });
+    this.switchLabel = data.label || 'Switch';
+    this.defaultValue = data.defaultValue || false;
+    this.isSwitch = true;
+    this._updateInputProperties();
   }
 
-  /**
-   * Sets the label of the switch.
-   * @param {string} label The label to show above the switch.
-   * @returns {SwitchComponent}
-   */
   setLabel(label) {
-    this.placeholder = label;
+    this.switchLabel = label;
+    this._updateInputProperties();
     return this;
   }
 
-  /**
-   * Sets the default value of the switch.
-   * @param {boolean} defaultValue The default value.
-   * @returns {SwitchComponent}
-   */
   setDefaultValue(defaultValue) {
-    this.options.forEach(o => (o.default = false));
-    const option = this.options.find(o => o.value === String(defaultValue));
-    if (option) {
-      option.default = true;
-    }
+    this.defaultValue = defaultValue;
+    this._updateInputProperties();
     return this;
+  }
+
+  _updateInputProperties() {
+    const instruction = 'Type "on" or "off":';
+    super.setLabel(`${this.switchLabel}\n${instruction}`);
+    super.setPlaceholder(this.defaultValue ? 'on' : 'off');
+    this.setRequired(false);
+  }
+
+  validateAndParseInput(input) {
+    if (!input || input.trim() === '') {
+      return this.defaultValue;
+    }
+
+    const normalizedInput = input.trim().toLowerCase();
+    const onValues = ['on', 'enable', 'enabled', 'true', '1', 'yes', 'active'];
+    const offValues = ['off', 'disable', 'disabled', 'false', '0', 'no', 'inactive'];
+
+    if (onValues.includes(normalizedInput)) {
+      return true;
+    } else if (offValues.includes(normalizedInput)) {
+      return false;
+    } else {
+      throw new Error('Please enter "on" or "off"');
+    }
+  }
+
+  getDisplayValue(input) {
+    try {
+      const value = this.validateAndParseInput(input);
+      return value ? '🟢 On' : '🔴 Off';
+    } catch (error) {
+      return '❓ Invalid';
+    }
   }
 }
 
