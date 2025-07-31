@@ -118,6 +118,16 @@ class SwitchComponent extends BaseMessageComponent {
 			required: this.required,
 		};
 	}
+
+	/**
+	 * Validates and parses the user's input.
+	 * @param {string} input The user's input.
+	 * @returns {boolean} The parsed input.
+	 */
+	validateAndParseInput(input) {
+		const truthy = ['true', 'yes', 'y', 'on', 'enable', 'enabled', 'active', '1'];
+		return truthy.includes(input.toLowerCase().trim());
+	}
 }
 
 module.exports = SwitchComponent;

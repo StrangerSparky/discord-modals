@@ -181,6 +181,49 @@ class SelectMenuComponent extends BaseMessageComponent {
 	static normalizeOptions(...options) {
 		return options.flat(Infinity).map((option) => this.normalizeOption(option));
 	}
+
+	/**
+	 * Validates and parses the user's input.
+	 * @param {string} input The user's input.
+	 * @returns {Array<string>} The parsed input.
+	 * @throws {Error} If the input is invalid.
+	 */
+	validateAndParseInput(input) {
+		if (!input) {
+			if (this.minValues > 0) {
+				throw new Error(`You must select at least ${this.minValues} option(s).`);
+			}
+			return [];
+		}
+
+		const selectedIndices = input
+			.split(',')
+			.map(s => s.trim())
+			.filter(s => s)
+			.map(s => parseInt(s, 10));
+
+		if (selectedIndices.some(isNaN)) {
+			throw new Error('Invalid input. Please provide numbers separated by commas (e.g., 1, 3).');
+		}
+
+		if (this.minValues && selectedIndices.length < this.minValues) {
+			throw new Error(`You must select at least ${this.minValues} option(s).`);
+		}
+
+		if (this.maxValues && selectedIndices.length > this.maxValues) {
+			throw new Error(`You can select at most ${this.maxValues} option(s).`);
+		}
+
+		const selectedValues = [];
+		for (const index of selectedIndices) {
+			if (index < 1 || index > this.options.length) {
+				throw new Error(`Invalid option selected. Please choose a number between 1 and ${this.options.length}.`);
+			}
+			selectedValues.push(this.options[index - 1].value);
+		}
+
+		return selectedValues;
+	}
 }
 
 module.exports = SelectMenuComponent;
