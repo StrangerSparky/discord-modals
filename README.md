@@ -47,7 +47,7 @@ client.on('interactionCreate', async interaction => {
       new TextInputComponent()
         .setCustomId('name-input')
         .setLabel('What is your name?')
-        .setStyle('SHORT')
+        .setStyle('Paragraph')
         .setPlaceholder('John Doe')
         .setRequired(true)
     );

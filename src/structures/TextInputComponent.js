@@ -83,8 +83,11 @@ class TextInputComponent extends BaseMessageComponent {
 
   static resolveStyle(style) {
     if (typeof style === 'string') {
-      style = style.toUpperCase();
-      return TextInputStyle[style] ?? style;
+      const styleMap = {
+        SHORT: TextInputStyle.Short,
+        PARAGRAPH: TextInputStyle.Paragraph,
+      };
+      return styleMap[style.toUpperCase()];
     }
     return style;
   }

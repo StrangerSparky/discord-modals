@@ -6,7 +6,7 @@ module.exports = {
   SelectMenuComponent: require('./src/structures/SelectMenuComponent'),
   ModalActionRow: require('./src/structures/ModalActionRow'),
   showModal: require('./src/structures/ShowModal'),
-  SnowflakeUtil: require('./src/util/SnowflakeUtil'),
   CheckboxComponent: require('./src/structures/CheckboxComponent'),
   SwitchComponent: require('./src/structures/SwitchComponent'),
+  SnowflakeUtil: require('./src/util/SnowflakeUtil'),
 };

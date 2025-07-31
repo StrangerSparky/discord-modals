@@ -7,7 +7,8 @@ try {
     .addComponents(
       new TextInputComponent()
         .setCustomId('text-input')
-        .setLabel('Text Input'),
+        .setLabel('Text Input')
+        .setStyle('Paragraph'),
       new CheckboxComponent()
         .setCustomId('checkbox')
         .setLabel('Checkbox'),
@@ -20,6 +21,10 @@ try {
 
   if (!json.custom_id || !json.title || json.components.length !== 3) {
     throw new Error('Modal.toJSON() produced incorrect output.');
+  }
+
+  if (json.components[0].components[0].style !== 2) {
+    throw new Error('TextInputComponent style is not resolving to the correct integer value.');
   }
 
   console.log('Test passed!');
