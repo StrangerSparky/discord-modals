@@ -1,6 +1,6 @@
 'use strict';
 
-const { Modal } = require('./Modal');
+const Modal = require('./Modal');
 const ModalPagination = require('./ModalPagination');
 
 /**
@@ -61,6 +61,7 @@ class ModalBuilder {
   }
 
   async _showSingleModal(interaction, components) {
+    const showModal = require('./ShowModal');
     const modal = new Modal()
       .setCustomId(this.customId)
       .setTitle(this.title)
