@@ -1,232 +1,287 @@
 <div align="center">
-  <img src="https://cdn.discordapp.com/attachments/910547379617402960/942871547268436088/Discord-Modals.png" alt="Discord Modals" />
-  <p align="center">
-  <a href="https://www.npmjs.com/package/discord-modals">
-    <img src="https://img.shields.io/npm/dt/discord-modals?style=for-the-badge" alt="npm" />
-  </a>
-</p>
+  <img src="https://cdn.discordapp.com/attachments/910547379617402960/942871547268436088/Discord-Modals.png" alt="Discord Modals v2.0" />
+  
+  # 🚀 Discord Modals v2.0
+  
+  **The Ultimate Discord Modals Package - Beyond Discord's Limits**
+  
+  [![NPM Version](https://img.shields.io/npm/v/discord-modals-v2.0?style=for-the-badge)](https://www.npmjs.com/package/discord-modals-v2.0)
+  [![Downloads](https://img.shields.io/npm/dt/discord-modals-v2.0?style=for-the-badge)](https://www.npmjs.com/package/discord-modals-v2.0)
+  [![License](https://img.shields.io/npm/l/discord-modals-v2.0?style=for-the-badge)](LICENSE)
+  [![GitHub Stars](https://img.shields.io/github/stars/StrangerSparky/discord-modals?style=for-the-badge)](https://github.com/StrangerSparky/discord-modals)
 
 </div>
 
-> **A package that allows your discord.js v13 and v14 bot to create, and interact with Modals, a new Discord feature.**
+---
 
-# 🔎 Installation
+## ✨ **What Makes This Special?**
 
-```sh
-npm install discord-modals
-yarn add discord-modals
+Discord Modals v2.0 **breaks through Discord's limitations** and provides:
+
+- 🎯 **Simulated Select Menus, Checkboxes & Switches** in modals
+- 🚫 **Unlimited Components** (bypass 5-component limit)  
+- 🔗 **Modal Chaining** for complex multi-step forms
+- 📄 **Auto-Pagination** for large forms
+- 🧠 **Conditional Logic** and branching workflows
+- 🛡️ **Advanced Validation** with custom rules
+- 📝 **TypeScript Support** with full type definitions
+
+## 🔥 **Beyond Discord's Limits**
+
+| Discord's Limits | Discord Modals v2.0 |
+|------------------|---------------------|
+| ❌ 5 components max | ✅ **Unlimited components** |
+| ❌ Only TextInput | ✅ **Select menus, checkboxes, switches** |  
+| ❌ No multi-step forms | ✅ **Modal chaining & wizards** |
+| ❌ No conditional logic | ✅ **Smart branching & conditions** |
+| ❌ Basic validation | ✅ **Advanced validation & parsing** |
+
+---
+
+## 🚀 **Quick Start**
+
+```bash
+npm install discord-modals-v2.0
 ```
 
-# 🔮 What is this package for?
-
-Recently, Discord API officialy announced **[Modal Interactions](https://discord.com/developers/docs/change-log#interaction-modals-and-application-command-attachment-option-type)**.
-
-**What is that?** Modal is a popup of Text Input Components [[Example]](https://discord.com/assets/2087c4210e4723cc26ac1b265940c499.png). It's so cool and useful for many commands that needs arguments. Discord-Modals can be a solution if you want to test or use Modals right now. **Supports discord.js v13 and v14. Try it!**
-
-# ✨ Setup
-
-The most recommended is to put this on your main file.
-
 ```js
-const { Client } = require('discord.js'); // Get the Client class
-const client = new Client(); // Create a Discord Client, with intents and what you need
-const discordModals = require('discord-modals'); // Define the discord-modals package!
-discordModals(client); // discord-modals needs your client in order to interact with modals
+const { 
+  ModalBuilder, 
+  SelectMenuComponent, 
+  CheckboxComponent, 
+  SwitchComponent 
+} = require('discord-modals-v2.0');
 
-client.login('token'); // Login with your bot token
+// Create a form with 10+ components (auto-paginated)
+const form = new ModalBuilder({
+  title: 'Server Setup',
+  autoPage: true // Automatically handles pagination
+})
+.addComponents(
+  new SelectMenuComponent()
+    .setCustomId('theme')
+    .setPlaceholder('Choose themes')
+    .setMaxValues(3)
+    .addOptions(
+      { label: 'Dark Mode', value: 'dark', emoji: '🌙' },
+      { label: 'Light Mode', value: 'light', emoji: '☀️' },
+      { label: 'Auto Mode', value: 'auto', emoji: '🔄' }
+    ),
+  
+  new CheckboxComponent()
+    .setCustomId('newsletter')
+    .setLabel('Subscribe to newsletter?'),
+    
+  new SwitchComponent()
+    .setCustomId('notifications')
+    .setLabel('Enable notifications?')
+    .setDefaultValue(true),
+    
+  // Add as many components as you want!
+  // They'll automatically be split across multiple pages
+);
+
+// Show the unlimited form
+const result = await form.show(interaction);
+console.log(result.data); // All parsed data from all pages
 ```
 
-> **Important:** Don't forget to put `discordModals(client)`, will be essential to receive the Modal Submit Interaction.
+---
 
-# ❓ How can i use it?
+## 🎯 **Enhanced Components**
 
-> First of all, we need to understand that Modals and Text Input Components are completely different. Modals is a popup that shows the text input components and text input are the components of modals. To understand better, you can explore the Discord API Documentation [here](https://discord.com/developers/docs/interactions/message-components#text-inputs).
-
-**Modals have:**
-
-- A Title
-- A Custom Id
-- Components (Action Rows with Text Inputs)
-
-**Text Inputs have:**
-
-- A Custom Id
-- A Style (Short or Paragraph)
-- A Label
-- A minimum length
-- A maximum length
-- A value (A prefilled value if there is not text)
-- And...a placeholder
-
-If you have understood this, you can continue on "Examples" section.
-
-> **Important:** Modals also support select menus. So, you need to know the select menu structure.
-
-# 📜 Examples
-
-If you are ready, take this examples.
-
-- First, we are going to create a Modal.
-
+### **SelectMenuComponent** - Dropdown Simulation
 ```js
-const { Modal } = require('discord-modals'); // Modal class
-
-const modal = new Modal() // We create a Modal
-	.setCustomId('modal-customid')
-	.setTitle('Modal')
-	.addComponents();
+new SelectMenuComponent()
+  .setCustomId('colors')
+  .setPlaceholder('Choose your favorite colors')
+  .setMinValues(1)
+  .setMaxValues(3)
+  .addOptions(
+    { label: 'Red', value: 'red', emoji: '❤️' },
+    { label: 'Blue', value: 'blue', emoji: '💙' },
+    { label: 'Green', value: 'green', emoji: '💚' }
+  )
 ```
 
-> **This is a basic structure of a Modal, but something is missing. Yeah! Components.**
+**User Experience:**
+```
+Choose your favorite colors
+Select 1-3 options (type "1,3"):
+1. ❤️ Red | 2. 💙 Blue | 3. 💚 Green
+```
+**User types:** `1,3` → **Returns:** `['red', 'green']`
 
-- We are going to create and add a Text Input Component and a Select Menu to the Modal.
-
+### **CheckboxComponent** - Yes/No Input
 ```js
-const { Modal, TextInputComponent, SelectMenuComponent } = require('discord-modals'); // Import all
-
-const modal = new Modal() // We create a Modal
-	.setCustomId('modal-customid')
-	.setTitle('Modal')
-	.addComponents(
-		new TextInputComponent() // We create a Text Input Component
-			.setCustomId('name')
-			.setLabel('Name')
-			.setStyle('SHORT') //IMPORTANT: Text Input Component Style can be 'SHORT' or 'LONG'
-			.setPlaceholder('Write your name here')
-			.setRequired(true), // If it's required or not
-
-		new SelectMenuComponent() // We create a Select Menu Component
-			.setCustomId('theme')
-			.setPlaceholder('What theme of Discord do you like?')
-			.addOptions(
-				{
-					label: 'Dark',
-					description: 'The default theme of Discord.',
-					value: 'dark',
-					emoji: '⚫',
-				},
-				{
-					label: 'Light',
-					description: 'Some people hate it, some people like it.',
-					value: 'light',
-					emoji: '⚪',
-				},
-			),
-	);
+new CheckboxComponent()
+  .setCustomId('terms')
+  .setLabel('Do you agree to the terms?')
+  .setDefaultValue(false)
 ```
 
-> **Yay! We have the full Modal, but... How can i send/show a Modal?**
+**Accepts:** `yes`, `y`, `true`, `1`, `on` → **Returns:** `true`
 
-- We are going to use the `showModal()` method to send the modal in an interaction.
+### **SwitchComponent** - On/Off Toggle
+```js
+new SwitchComponent()
+  .setCustomId('notifications')
+  .setLabel('Enable notifications?')
+  .setDefaultValue(true)
+```
+
+**Accepts:** `on`, `enable`, `active`, `true` → **Returns:** `true`
+
+---
+
+## 🚫 **Unlimited Components**
+
+Bypass Discord's 5-component limit automatically:
 
 ```js
-const { Modal, TextInputComponent, SelectMenuComponent, showModal } = require('discord-modals'); // Import all
+const { ModalPagination } = require('discord-modals-v2.0');
 
-const modal = new Modal() // We create a Modal
-	.setCustomId('modal-customid')
-	.setTitle('Modal')
-	.addComponents(
-		new TextInputComponent() // We create a Text Input Component
-			.setCustomId('name')
-			.setLabel('Name')
-			.setStyle('SHORT') //IMPORTANT: Text Input Component Style can be 'SHORT' or 'LONG'
-			.setPlaceholder('Write your name here')
-			.setRequired(true), // If it's required or not
+const form = new ModalPagination({
+  title: 'Large Form',
+  onComplete: async (submitted, data) => {
+    // Handle all collected data
+    console.log('Collected from all pages:', data);
+  }
+});
 
-		new SelectMenuComponent() // We create a Select Menu Component
-			.setCustomId('theme')
-			.setPlaceholder('What theme of Discord do you like?')
-			.addOptions(
-				{
-					label: 'Dark',
-					description: 'The default theme of Discord.',
-					value: 'dark',
-					emoji: '⚫',
-				},
-				{
-					label: 'Light',
-					description: 'Some people hate it, some people like it.',
-					value: 'light',
-					emoji: '⚪',
-				},
-			),
-	);
+// Add 15+ components - they'll be auto-split into pages
+form.addComponents(
+  component1, component2, component3, component4, component5,  // Page 1
+  component6, component7, component8, component9, component10, // Page 2
+  component11, component12, component13, component14, component15 // Page 3
+  // ... add as many as you need!
+);
 
-client.on('interactionCreate', (interaction) => {
-	// Let's say the interaction will be a Slash Command called 'ping'.
-	if (interaction.commandName === 'ping') {
-		showModal(modal, {
-			client: client, // Client to show the Modal through the Discord API.
-			interaction: interaction, // Show the modal with interaction data.
-		});
-	}
+await form.show(interaction);
+```
+
+---
+
+## 🧠 **Advanced Features**
+
+### **Conditional Logic**
+```js
+const form = new ModalBuilder()
+  .addComponent(ageComponent)
+  .addComponent(drinkComponent, {
+    // Only show if age >= 21
+    condition: (data) => data.age >= 21
+  });
+```
+
+### **Custom Validation**
+```js
+form.addValidator('email', (value) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(value) || 'Please enter a valid email';
 });
 ```
 
-> **Congrats! You show the Modal to the Interaction User. Now, how can i receive the Modal Interaction?**
-
-## 📢 Events: Receiving Modal Submit Interaction and extracting data
-
-- discord-modals integrates to your Client a new event called `modalSubmit`. We are going to use it.
-- To have access to the responses, just use the `.getTextInputValue()` method with the Custom Id of the Text Input Component, or if you use Select Menus, the same way, use the `.getSelectMenuValues()` method with the Custom Id of the Select Menu Component.
-
-> **Recommendation:** Put your `modalSubmit` event on your main file or in an Event Handler.
-
+### **Data Persistence**
 ```js
-client.on('modalSubmit', async (modal) => {
-	if (modal.customId === 'modal-customid') {
-		const nameResponse = modal.getTextInputValue('name');
-		const themeResponse = modal.getSelectMenuValues('theme');
-		modal.reply(
-			`Thank you for answering the form! Powered by discord-modals.\nSo, you are **${nameResponse}** and you like the **${themeResponse}** theme. Awesome!`,
-		);
-	}
+// Data is automatically stored across pages and steps
+const allData = form.getData();
+const specificField = form.getComponentData('email');
+```
+
+---
+
+## 📚 **Examples**
+
+Check out the [examples directory](examples/) for complete working examples:
+
+- **[Unlimited Components](examples/unlimited-components.js)** - 15+ component demo
+- **[Modal Chain Wizard](examples/modal-chain-wizard.js)** - Complex wizard with branching
+- **[Advanced Survey](examples/advanced-survey.js)** - Conditional survey logic
+
+---
+
+## 📊 **Comparison**
+
+| Feature | discord.js | Other Modal Libs | Discord Modals v2.0 |
+|---------|------------|------------------|---------------------|
+| Component Limit | 5 | 5 | ✅ **Unlimited** |
+| Select Menus | ❌ | ❌ | ✅ **Simulated** |
+| Checkboxes | ❌ | ❌ | ✅ **Simulated** |
+| Multi-step Forms | ❌ | Limited | ✅ **Full Support** |
+| Conditional Logic | ❌ | ❌ | ✅ **Advanced** |
+| Auto-pagination | ❌ | ❌ | ✅ **Built-in** |
+| TypeScript | ✅ | Varies | ✅ **Full Support** |
+
+---
+
+## 🛠️ **Advanced Usage**
+
+### **TypeScript Support**
+```typescript
+import { 
+  ModalBuilder, 
+  SelectMenuComponent, 
+  CheckboxComponent 
+} from 'discord-modals-v2.0';
+
+const form: ModalBuilder = new ModalBuilder({
+  title: 'Typed Form',
+  autoPage: true
 });
 ```
 
-> **And you made it! I hope this examples help you :)**
+### **Error Handling**
+```js
+const result = await form.show(interaction);
 
-<img src="https://user-images.githubusercontent.com/79017590/172033349-816d4b8f-ab1b-4cb4-9d7a-f4919ba9aa70.gif" alt="Modal Test" width=700 />
+if (result.success) {
+  console.log('✅ Form completed:', result.data);
+} else {
+  console.log('❌ Errors:', result.errors);
+}
+```
 
-# 📚 Documentation
+---
 
-- Check our documentation [here](https://github.com/Mateo-tem/discord-modals/blob/master/DOCS.md).
+## 🤝 **Contributing**
 
-# ❓ FAQ
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-Can I show a modal, replying to a modal?
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests and documentation
+5. Submit a pull request
 
-- No, Discord API don't support that, but there are plans to add that.
+---
 
-Can I add buttons/select menus to modals?
+## 📄 **License**
 
-- Yes, but only select menus are supported at this moment. Discord API have plans to add other type of components. Be patient :)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Can I show a modal in a message?
+---
 
-- No, modals are **only for interactions** (Select Menus, Slash Commands, Buttons and Context Menu Commands). They are a response for interactions.
+## 🔗 **Links**
 
-Can I add more than 5 Components in a modal?
+- **NPM Package:** https://www.npmjs.com/package/discord-modals-v2.0
+- **GitHub Repository:** https://github.com/StrangerSparky/discord-modals
+- **Documentation:** [Full Documentation](docs/README.md)
+- **Examples:** [Example Directory](examples/)
 
-- No, a modal supports **5 Action Rows (containing 1 Text Input Component or Select Menu per row)**. There is no plans in Discord API to increase the amount of rows per modal.
+---
 
-DiscordAPIError: Interaction has already been acknowledged.
-
-- The `showModal()` method is a response of an interaction. also `reply()` or `deferReply()` are responses of an interaction.
-  If you give a response, you can't give a response again. So you need to remove `reply()` or `editReply()` on your code.
-
-- If that doesn't work, probably you have the `modalSubmit` event on the same file of your command, please just add it to a event handler or just separate it.
-
-The Select Menu in Modal is not being displayed in mobile/phone.
-
-- Discord is still developing it, so the select menu is not being displayed in this type of clients. For now, only works in desktop/web client. Use it at your own risk.
-
-# 🔨 Developers
+## 🔨 **Developers**
 
 - 『𝑴𝒂𝒕𝒆𝒐ᵗᵉᵐ』#9999
+- Stranger_Sparky #7328
 
-# ⛔ Issues/Bugs?
+---
 
-> **Please report it on our GitHub Repository [here](https://github.com/Mateo-tem/discord-modals/issues) to fix it inmmediately or join to the support server.**
+<div align="center">
 
-> **Credits:** This package is based on discord.js, code base was extracted for this.
+**⭐ Star this repository if it helped you!**
+
+**🚀 Transform your Discord bots with unlimited modal possibilities!**
+
+</div>
