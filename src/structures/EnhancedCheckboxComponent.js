@@ -2,10 +2,7 @@
 
 const TextInputComponent = require('./TextInputComponent');
 
-/**
- * Enhanced Checkbox Component that simulates checkbox behavior using TextInput
- */
-class CheckboxComponent extends TextInputComponent {
+class EnhancedCheckboxComponent extends TextInputComponent {
   constructor(data = {}) {
     super({ ...data, style: 'SHORT' });
     this.checkboxLabel = data.label || 'Checkbox';
@@ -27,7 +24,7 @@ class CheckboxComponent extends TextInputComponent {
   }
 
   _updateInputProperties() {
-    const instruction = 'Type "yes" or "no":';
+    const instruction = 'Type "yes", "y", "true", "1" for checked, or "no", "n", "false", "0" for unchecked:';
     super.setLabel(`${this.checkboxLabel}\n${instruction}`);
     super.setPlaceholder(this.defaultValue ? 'yes' : 'no');
     this.setRequired(false);
@@ -47,7 +44,7 @@ class CheckboxComponent extends TextInputComponent {
     } else if (falseValues.includes(normalizedInput)) {
       return false;
     } else {
-      throw new Error('Please enter "yes" or "no"');
+      throw new Error('Please enter "yes" or "no" (or similar variations)');
     }
   }
 
@@ -61,4 +58,4 @@ class CheckboxComponent extends TextInputComponent {
   }
 }
 
-module.exports = CheckboxComponent;
+module.exports = EnhancedCheckboxComponent;

@@ -1,7 +1,7 @@
 {
   "name": "discord-modals-v2.0",
   "version": "2.0.1",
-  "description": "Discord-Modals is a package that allows your discord.js v13 and v14 bot to create, and interact with Modals, a new Discord feature.",
+  "description": "Enhanced Discord Modals package that simulates Select Menus, Checkboxes, and Switches using TextInput components with smart validation for discord.js v14+",
   "main": "index.js",
   "files": [
     "src",

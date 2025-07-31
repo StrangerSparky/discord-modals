@@ -2,20 +2,17 @@
 
 const TextInputComponent = require('./TextInputComponent');
 
-/**
- * Enhanced Checkbox Component that simulates checkbox behavior using TextInput
- */
-class CheckboxComponent extends TextInputComponent {
+class EnhancedSwitchComponent extends TextInputComponent {
   constructor(data = {}) {
     super({ ...data, style: 'SHORT' });
-    this.checkboxLabel = data.label || 'Checkbox';
+    this.switchLabel = data.label || 'Switch';
     this.defaultValue = data.defaultValue || false;
-    this.isCheckbox = true;
+    this.isSwitch = true;
     this._updateInputProperties();
   }
 
   setLabel(label) {
-    this.checkboxLabel = label;
+    this.switchLabel = label;
     this._updateInputProperties();
     return this;
   }
@@ -27,9 +24,9 @@ class CheckboxComponent extends TextInputComponent {
   }
 
   _updateInputProperties() {
-    const instruction = 'Type "yes" or "no":';
-    super.setLabel(`${this.checkboxLabel}\n${instruction}`);
-    super.setPlaceholder(this.defaultValue ? 'yes' : 'no');
+    const instruction = 'Type "on", "off", "enable", "disable", "true", "false":';
+    super.setLabel(`${this.switchLabel}\n${instruction}`);
+    super.setPlaceholder(this.defaultValue ? 'on' : 'off');
     this.setRequired(false);
   }
 
@@ -39,26 +36,26 @@ class CheckboxComponent extends TextInputComponent {
     }
 
     const normalizedInput = input.trim().toLowerCase();
-    const trueValues = ['yes', 'y', 'true', '1', 'on', 'checked'];
-    const falseValues = ['no', 'n', 'false', '0', 'off', 'unchecked'];
+    const onValues = ['on', 'enable', 'enabled', 'true', '1', 'yes', 'active'];
+    const offValues = ['off', 'disable', 'disabled', 'false', '0', 'no', 'inactive'];
 
-    if (trueValues.includes(normalizedInput)) {
+    if (onValues.includes(normalizedInput)) {
       return true;
-    } else if (falseValues.includes(normalizedInput)) {
+    } else if (offValues.includes(normalizedInput)) {
       return false;
     } else {
-      throw new Error('Please enter "yes" or "no"');
+      throw new Error('Please enter "on" or "off" (or similar variations)');
     }
   }
 
   getDisplayValue(input) {
     try {
       const value = this.validateAndParseInput(input);
-      return value ? '✅ Yes' : '❌ No';
+      return value ? '🟢 On' : '🔴 Off';
     } catch (error) {
       return '❓ Invalid';
     }
   }
 }
 
-module.exports = CheckboxComponent;
+module.exports = EnhancedSwitchComponent;
