@@ -5,7 +5,7 @@ const {
   SelectMenuComponent, 
   CheckboxComponent, 
   SwitchComponent 
-} = require('discord-modals-v2.0');
+} = require('../index.js');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
