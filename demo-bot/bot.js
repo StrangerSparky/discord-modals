@@ -1,6 +1,7 @@
+require("dotenv").config();
 const { Client, GatewayIntentBits, Routes } = require('discord.js');
 const { REST } = require('@discordjs/rest');
-const { Modal, TextInputComponent, SelectMenuComponent, CheckboxComponent, SwitchComponent, showModal } = require('discord-modals');
+const { Modal, TextInputComponent, SelectMenuComponent, CheckboxComponent, SwitchComponent, showModal } = require('discord-modals-v2.0');
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 

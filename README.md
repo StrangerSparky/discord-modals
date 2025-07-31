@@ -128,7 +128,7 @@ No, a modal can only have up to 5 action rows, and each action row can only cont
 # 🔨 Developers
 
 - 『𝑴𝒂𝒕𝒆𝒐ᵗᵉᵐ』#9999
-- Your Name Here (if you contribute!)
+- Stranger_Sparky #7328
 
 # ⛔ Issues/Bugs?
 
