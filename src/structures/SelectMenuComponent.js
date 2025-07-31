@@ -1,121 +1,186 @@
 'use strict';
 
-const TextInputComponent = require('./TextInputComponent');
+const BaseMessageComponent = require('./BaseMessageComponent');
+const ModalActionRow = require('./ModalActionRow');
+const { MessageComponentTypes } = require('../util/Constants');
 const Util = require('../util/Util');
-const { RangeError } = require('./errors');
 
 /**
- * Enhanced Select Menu Component that simulates dropdown behavior using TextInput
+ * Represents a Select Menu Component of a Modal.
+ * @extends {BaseMessageComponent}
  */
-class SelectMenuComponent extends TextInputComponent {
-  constructor(data = {}) {
-    super({ ...data, style: 'SHORT' });
-    this.options = [];
-    this.selectPlaceholder = data.placeholder || 'Select an option';
-    this.minValues = data.min_values ?? data.minValues ?? 1;
-    this.maxValues = data.max_values ?? data.maxValues ?? 1;
-    this.allowMultiple = this.maxValues > 1;
-    this.isSelectMenu = true;
-  }
+class SelectMenuComponent extends BaseMessageComponent {
+	/**
+   * Represents a Select Menu Component of a Modal.
+   * @example
+   * new SelectMenuComponent()
+   * .setCustomId('menu-customid')
+   * .setPlaceholder('Some text Here')
+   * .addOptions(
+   *   {
+         label: "Option 1",
+         description: "My first option",
+         value: "option_1"
+       },
+       {
+         label: "Option 2",
+         description: "My second option",
+         value: "option_2"
+       }
+   * );
+   */
+	constructor(data = {}) {
+		super({ type: 'SELECT_MENU' });
 
-  addOptions(...options) {
-    this.options.push(...this.constructor.normalizeOptions(options));
-    this._updateInputProperties();
-    return this;
-  }
+		this.setup(data);
+	}
 
-  setOptions(...options) {
-    this.options = this.constructor.normalizeOptions(options);
-    this._updateInputProperties();
-    return this;
-  }
+	setup(data) {
+		/**
+		 * The Custom Id of the Select Menu Component
+		 * @type {String}
+		 */
+		this.customId = data.custom_id ?? data.customId ?? null;
 
-  setPlaceholder(placeholder) {
-    this.selectPlaceholder = Util.verifyString(placeholder, RangeError, 'SELECT_MENU_PLACEHOLDER');
-    this._updateInputProperties();
-    return this;
-  }
+		/**
+		 * The Placeholder (text when nothing is selected) of the Select Menu Component.
+		 * @type {String}
+		 */
+		this.placeholder = data.placeholder ?? null;
 
-  setMinValues(minValues) {
-    this.minValues = minValues;
-    this.allowMultiple = this.maxValues > 1;
-    this._updateInputProperties();
-    return this;
-  }
+		/**
+		 * Minimum number of selections allowed for the Select Menu Component.
+		 * @type {Number}
+		 */
+		this.minValues = data.min_values ?? data.minValues ?? null;
 
-  setMaxValues(maxValues) {
-    this.maxValues = maxValues;
-    this.allowMultiple = this.maxValues > 1;
-    this._updateInputProperties();
-    return this;
-  }
+		/**
+		 * Maximum number of selections allowed for the Select Menu Component.
+		 * @type {Number}
+		 */
+		this.maxValues = data.max_values ?? data.maxValues ?? null;
 
-  _updateInputProperties() {
-    const optionsList = this.options
-      .map((option, index) => {
-        const emoji = option.emoji ? option.emoji + ' ' : '';
-        return `${index + 1}. ${emoji}${option.label}`;
-      })
-      .join(' | ');
+		/**
+		 * The Options of the Select Menu Component.
+		 * @type {Array<APISelectMenuOption>}
+		 */
+		this.options = this.constructor.normalizeOptions(data.options ?? []);
 
-    const instructionText = this.allowMultiple
-      ? `Select ${this.minValues}-${this.maxValues} options (type "1,3"):`
-      : 'Select option (type number):';
+		/**
+		 * If the Select Menu Component is disabled.
+		 * @type {boolean}
+		 */
+		this.disabled = data.disabled ?? false;
+	}
 
-    this.setLabel(`${this.selectPlaceholder}\n${instructionText}`);
-    
-    const shortOptions = this.options.length <= 3 
-      ? optionsList 
-      : `1-${this.options.length}`;
-    
-    super.setPlaceholder(shortOptions);
-    this.setRequired(this.minValues > 0);
-  }
+	/**
+	 * Sets the Custom Id of a Select Menu Component.
+	 * @param {String} customId The Custom Id of a Select Menu Component.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	setCustomId(customId) {
+		this.customId = Util.verifyString(customId, RangeError, 'SELECT_MENU_CUSTOM_ID');
+		return this;
+	}
 
-  validateAndParseInput(input) {
-    if (!input || input.trim() === '') {
-      if (this.minValues > 0) throw new Error('This field is required');
-      return [];
-    }
+	/**
+	 * Sets a Boolean if a Select Menu Component will be disabled.
+	 * @param {boolean} [disabled=true] If the Select Menu Component will be disabled.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	setDisabled(disabled = true) {
+		this.disabled = disabled;
+		return this;
+	}
 
-    const inputNumbers = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
-    
-    if (inputNumbers.length === 0) {
-      throw new Error('Enter valid numbers (e.g., "1" or "1,3")');
-    }
+	/**
+	 * Sets the maximum number of selections allowed for the Select Menu Component.
+	 * @param {number} maxValues Number of selections to be allowed.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	setMaxValues(maxValues) {
+		this.maxValues = maxValues;
+		return this;
+	}
 
-    if (inputNumbers.length < this.minValues) {
-      throw new Error(`Select at least ${this.minValues} option(s)`);
-    }
+	/**
+	 * Sets the minimum number of selections allowed for the Select Menu Component.
+	 * @param {number} minValues Number of selections to be required.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	setMinValues(minValues) {
+		this.minValues = minValues;
+		return this;
+	}
 
-    if (inputNumbers.length > this.maxValues) {
-      throw new Error(`Select at most ${this.maxValues} option(s)`);
-    }
+	/**
+	 * Sets the placeholder of the Select Menu Component.
+	 * @param {string} placeholder The placeholder of the Select Menu Component.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	setPlaceholder(placeholder) {
+		this.placeholder = Util.verifyString(placeholder, RangeError, 'SELECT_MENU_PLACEHOLDER');
+		return this;
+	}
 
-    const selectedValues = [];
-    for (const num of inputNumbers) {
-      if (num < 1 || num > this.options.length) {
-        throw new Error(`Invalid: ${num}. Choose 1-${this.options.length}`);
-      }
-      selectedValues.push(this.options[num - 1].value);
-    }
+	/**
+	 * Adds options to the Select Menu Component.
+	 * @param {...APISelectMenuOptions} options The options to add.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	addOptions(...options) {
+		this.options.push(...this.constructor.normalizeOptions(options));
+		return this;
+	}
 
-    return [...new Set(selectedValues)];
-  }
+	/**
+	 * Sets the options of the Select Menu Component.
+	 * @param {...APISelectMenuOptions} options The options to set.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	setOptions(...options) {
+		this.spliceOptions(0, this.options.length, options);
+		return this;
+	}
 
-  static normalizeOption(option) {
-    let { label, value, description, emoji } = option;
-    label = Util.verifyString(label, RangeError, 'SELECT_OPTION_LABEL');
-    value = Util.verifyString(value, RangeError, 'SELECT_OPTION_VALUE');
-    emoji = emoji ? Util.resolvePartialEmoji(emoji) : null;
-    description = description ? Util.verifyString(description, RangeError, 'SELECT_OPTION_DESCRIPTION', true) : null;
+	/**
+	 * Removes, replaces, and inserts options in the Select Menu Component.
+	 * @param {Number} index The index to start at.
+	 * @param {Number} deleteCount The number of options to remove.
+	 * @param {...APISelectMenuOptions} [options] The replacing option objects.
+	 * @returns {SelectMenuComponent} A Select Menu Component.
+	 */
+	spliceOptions(index, deleteCount, ...options) {
+		this.options.splice(index, deleteCount, ...this.constructor.normalizeOptions(...options));
+		return this;
+	}
 
-    return { label, value, description, emoji, default: option.default ?? false };
-  }
+	toJSON() {
+		const actionRow = new ModalActionRow().addComponent(this);
 
-  static normalizeOptions(...options) {
-    return options.flat(Infinity).map(option => this.normalizeOption(option));
-  }
+		return actionRow.toJSON();
+	}
+
+	static normalizeOption(option) {
+		let { label, value, description, emoji } = option;
+
+		label = Util.verifyString(label, RangeError, 'SELECT_OPTION_LABEL');
+		value = Util.verifyString(value, RangeError, 'SELECT_OPTION_VALUE');
+		emoji = emoji ? Util.resolvePartialEmoji(emoji) : null;
+		description = description ? Util.verifyString(description, RangeError, 'SELECT_OPTION_DESCRIPTION', true) : null;
+
+		return {
+			label,
+			value,
+			description,
+			emoji,
+			default: option.default ?? false,
+		};
+	}
+
+	static normalizeOptions(...options) {
+		return options.flat(Infinity).map((option) => this.normalizeOption(option));
+	}
 }
 
 module.exports = SelectMenuComponent;
